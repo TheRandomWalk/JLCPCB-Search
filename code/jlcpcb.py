@@ -4,6 +4,7 @@ import math
 import requests
 import os
 import sys
+import io
 
 
 # Settings
@@ -67,11 +68,8 @@ def fixUnicode(df):
 def download(args = None):
     print ('Downloading database... ')
 
-    xls = pandas.ExcelFile(requests.get(url, allow_redirects = True).content)
-    df = pandas.concat([xls.parse(s) for s in xls.sheet_names], ignore_index = True)
-
+    df = pandas.read_csv(io.StringIO(requests.get(url).content.decode('gbk')), index_col = False)
     df.columns = ['LCSC', 'First category', 'Second category', 'PN', 'Package', 'Pins', 'Manufacturer', 'Type', 'Description', 'Datasheet', 'Price', 'Stock']
-
     df.to_parquet(filename)
 
     print ('Saved {:,d} entries.'.format(df.shape[0]))
